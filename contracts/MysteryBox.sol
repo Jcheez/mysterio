@@ -19,15 +19,15 @@ contract MysteryBox {
     mapping(uint256 => Box) boxList;
     uint256 nextBoxId;
 
-    constructor(ownedNFTs ownedNFTs) public {
-        ownedNFTInstance = ownedNFTs;
+    constructor(ownedNFTs ownedNFT) public {
+        ownedNFTInstance = ownedNFT;
     }
 
     event boxMade(uint256 boxId, tierPrices tier);
     event transferMade(address purchaser);
     event boxOpen(address purchaser);
 
-    function makeBox(tierPrices tier, address purchaser) private returns (Box) {
+    function makeBox(tierPrices tier, address purchaser) private returns (Box memory) {
         nextBoxId++;
         mapping(uint16 => ERC721) boxNFTList;
         uint16 boxNFTid = 0;
@@ -61,6 +61,7 @@ contract MysteryBox {
                 boxNFTList[boxNFTid] = ownedNFTInstance.unwantedNFTs[rngNum];
                 // update minval
                 minVal += priceOfNFTDrawn;
+                ownedNFTInstance.sold(rngNum);
             }
         }
 
@@ -118,12 +119,13 @@ contract MysteryBox {
             // check how to get nft id for transferring
             ercInstance.transferFrom(address(this), msg.sender, nft.id);
             nfts.push(nft);
+            //ownedNFTInstance.remove();
         }
         yourBox.isOpen = true;
         return nfts;
     }
 
-    function checkBoxesIds() public view returns (uint256[]) {
+    function checkBoxesIds() public view returns (uint256[] memory) {
         require(ownedBoxes[msg.sender].length > 0, "you do not own any boxes");
         return ownedBoxes[msg.sender];
     }

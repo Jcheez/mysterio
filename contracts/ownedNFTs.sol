@@ -5,6 +5,9 @@ contract ownedNFTs {
     uint256 private nextAvailableSlot;
     mapping(uint256 => address) private unwantedNFTs;
     mapping(uint256 => uint256) private NFTPrices;
+    
+    mapping(uint256 => address) private soldNFTs;
+    mapping(uint256 => uint256) private soldNFTPrices;
 
     function add(uint256 price, address nftAddress) public {
         unwantedNFTs[nextAvailableSlot] = nftAddress;
@@ -13,22 +16,29 @@ contract ownedNFTs {
         nextAvailableSlot += 1;
     }
 
-<<<<<<< HEAD
     function remove(uint256 id) public returns (uint256, address) {
-        require(unwantedNFTs[id] != address(0), "NFT has already been removed");
-        require(NFTPrices[id] != 0, "NFT has already been removed");
+        require(soldNFTs[id] != address(0), "NFT has already been transferred");
+        require(soldNFTPrices[id] != 0, "NFT has already been transferred");
+        address nftAdd = soldNFTs[id];
+        uint256 price = soldNFTPrices[id];
+
+        soldNFTs[id] = address(0);
+        soldNFTPrices[id] = 0;
+
+        return (price, nftAdd);
+    }
+
+    function sold(uint256 id) public {
+        require(unwantedNFTs[id] != address(0), "NFT has already been sold");
+        require(NFTPrices[id] != 0, "NFT has already been sold");
+
         address nftAdd = unwantedNFTs[id];
         uint256 price = NFTPrices[id];
 
+        soldNFTs[id] = nftAdd;
+        soldNFTPrices[id] = price;
         unwantedNFTs[id] = address(0);
         NFTPrices[id] = 0;
-
-        return (price, nftAdd);
-=======
-    function delete(uint256 id) public returns (uint256, address) {
-        // Change address of ID to 0
-        // returns the address and price 
->>>>>>> 1c5d090a95a9dc53de8012b28ef523791b7e777c
     }
 
 }

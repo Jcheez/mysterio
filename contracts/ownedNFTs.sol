@@ -12,6 +12,7 @@ contract ownedNFTs {
 
     function delete(uint256 id) public returns (uint256, address) {
         // Change address of ID to 0
+        // returns the address and price
     }
 
 }

@@ -13,6 +13,7 @@ contract ownedNFTs {
         nextAvailableSlot += 1;
     }
 
+<<<<<<< HEAD
     function remove(uint256 id) public returns (uint256, address) {
         require(unwantedNFTs[id] != address(0), "NFT has already been removed");
         require(NFTPrices[id] != 0, "NFT has already been removed");
@@ -23,6 +24,11 @@ contract ownedNFTs {
         NFTPrices[id] = 0;
 
         return (price, nftAdd);
+=======
+    function delete(uint256 id) public returns (uint256, address) {
+        // Change address of ID to 0
+        // returns the address and price 
+>>>>>>> 1c5d090a95a9dc53de8012b28ef523791b7e777c
     }
 
 }

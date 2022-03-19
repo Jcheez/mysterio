@@ -12,7 +12,7 @@ contract MysteryNFT is ERC721Enumerable{
     constructor() ERC721("MysteryNFT", "MYSTNFT"){
     }
 
-    //params: maybe generate hash for token based on inputs and rarity 
+    //params: maybe generate hash for token based on inputs and rarity?
     function mint(uint256 num) public{
         // bytes32 joined = bytes32(this.generateId(rarity, inputs));
         // bytes32 id = keccak256(joined);

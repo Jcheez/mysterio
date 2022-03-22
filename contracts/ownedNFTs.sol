@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity >=0.5.0;
 
 contract ownedNFTs {
     uint256 private numNFTs;

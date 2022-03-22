@@ -131,6 +131,6 @@ contract MysteryBox {
     }
 
     function rngNFT() public returns (uint16) {
-        // function to generate a certain index
+        return uint16(keccak256(block.difficulty, now));
     }
 }

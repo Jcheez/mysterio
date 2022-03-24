@@ -4,18 +4,13 @@ var assert = require("assert");
 const { cp } = require("fs");
 
 const ownedNFTs = artifacts.require("./ownedNFTs.sol");
-const testNFTs = artifacts.require("./testNFTs.sol")
+const MysteryNFT = artifacts.require("./MysteryNFT.sol");
 
 contract("OwnedNFTs", (accounts) => {
 
     before(async () => {
         ownedInstance = await ownedNFTs.deployed();
-        testNFTInstance = await testNFTs.deployed();
-        testNFT1 = testNFTInstance.create("test1", "t1")
-        testNFT2 = testNFTInstance.create("test2", "t2")
-        testNFT3 = testNFTInstance.create("test3", "t3")
-        testNFT4 = testNFTInstance.create("test4", "t4")
-        testNFT5 = testNFTInstance.create("test5", "t5")
+        testNFTInstance = await MysteryNFT.deployed();
     });
 
     it("Adding NFT to ownedInstance", async () => {

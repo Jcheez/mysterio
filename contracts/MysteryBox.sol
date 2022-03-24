@@ -135,7 +135,7 @@ contract MysteryBox {
         }
     }
 
-    function openBox(uint256 boxID, uint256 tokenId) public returns (ERC721[] memory) {
+    function openBox(uint256 boxID) public returns (ERC721[] memory) {
         require(
             boxList[boxID].purchaser == msg.sender,
             "this box does not belong to you"
@@ -147,7 +147,7 @@ contract MysteryBox {
         for (uint256 i = 0; i < yourBox.nfts.length; i++) {
             // need to check if there needs to be owner for this contract
             // check how to get nft id for transferring
-            ERC721(yourBox.nfts[i].parentContract).transferFrom(address(this), msg.sender, tokenId);
+            ERC721(yourBox.nfts[i].parentContract).transferFrom(address(this), msg.sender, yourBox.nfts[i].tokenId);
             nfts[i] = ERC721(yourBox.nfts[i].parentContract);
             ownedNFTInstance.remove(yourBox.nftIds[i]);
         }

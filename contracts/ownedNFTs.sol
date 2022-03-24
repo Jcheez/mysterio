@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.5.0;
+pragma solidity ^0.5.0;
 
 contract ownedNFTs {
     uint256 private numNFTs;
@@ -44,12 +44,16 @@ contract ownedNFTs {
         emit nftSold(soldNFTs[id].price, soldNFTs[id].parentContract, soldNFTs[id].tokenId);
     }
 
+    function getParentContract(uint256 id) public view returns(address) {
+        return unwantedNFTs[id].parentContract;
+    }
+
     function getPrice(uint256 id) public view returns(uint256) {
         return unwantedNFTs[id].price;
     }
 
-    function getUnwantedNFT(uint256 id) public view returns(nft memory) {
-        return unwantedNFTs[id];
+    function getTokenId(uint256 id) public view returns(uint256) {
+        return unwantedNFTs[id].tokenId;
     }
 
     function getMaximumSize() public view returns(uint256) {

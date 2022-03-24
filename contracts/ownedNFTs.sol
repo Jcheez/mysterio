@@ -1,4 +1,7 @@
+// SPDX-License-Identifier: MIT
 pragma solidity >=0.5.0;
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+
 
 contract ownedNFTs {
     uint256 private numNFTs;
@@ -8,6 +11,7 @@ contract ownedNFTs {
     
     mapping(uint256 => address) private soldNFTs;
     mapping(uint256 => uint256) private soldNFTPrices;
+
 
     function add(uint256 price, address nftAddress) public {
         unwantedNFTs[nextAvailableSlot] = nftAddress;
@@ -39,6 +43,18 @@ contract ownedNFTs {
         soldNFTPrices[id] = price;
         unwantedNFTs[id] = address(0);
         NFTPrices[id] = 0;
+    }
+
+    function getPrices(uint256 id) public view returns(uint256) {
+        return NFTPrices[id];
+    }
+
+    function getUnwantedNFTs(uint256 id) public view returns(ERC721Enumerable) {
+        return ERC721Enumerable(unwantedNFTs[id]);
+    }
+
+    function getMaximumSize() public view returns(uint256) {
+        return nextAvailableSlot - 1;
     }
 
 }

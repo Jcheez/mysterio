@@ -16,15 +16,15 @@ contract("OwnedNFTs", (accounts) => {
 
     describe("Adding", async () => {
         it("Adding NFT", async () => {
-            let add = await ownedInstance.add(100, testNFTInstance.address, 0, {from: accounts[0]});
+            let add = await ownedInstance.add(100, testNFTInstance.address, 0, false, {from: accounts[0]});
             truffleAssert.eventEmitted(add, "nftAdded", ev => {
                 return ev.price.toNumber() === 100 && ev.tokenId.toNumber() === 0;
             });
         });
     
         it("Checking NFT is added in correct order", async () => {
-            let add = await ownedInstance.add(200, testNFTInstance.address, 2, {from: accounts[0]});
-            let price = await ownedInstance.getPrice(1, {from: accounts[0]});
+            let add = await ownedInstance.add(200, testNFTInstance.address, 2, false, {from: accounts[0]});
+            let price = await ownedInstance.getPrice(1, false, {from: accounts[0]});
             assert.strictEqual(
                 price.toNumber(),
                 200,
@@ -35,7 +35,7 @@ contract("OwnedNFTs", (accounts) => {
 
     describe("Selling", async () => {
         it("Marking NFT is sold", async () => {
-            let sell = await ownedInstance.sold(1, {from: accounts[0]});
+            let sell = await ownedInstance.sold(1, false, {from: accounts[0]});
             truffleAssert.eventEmitted(sell, "nftSold", ev => {
                 return ev.price.toNumber() === 200 && ev.tokenId.toNumber() === 2;
             });
@@ -43,14 +43,14 @@ contract("OwnedNFTs", (accounts) => {
     
         it("Error received when selling same NFT", async () => {
             await truffleAssert.reverts(
-                ownedInstance.sold(1, {from: accounts[0]}),
+                ownedInstance.sold(1, false, {from: accounts[0]}),
                 "NFT has already been sold"
             );
         });
     
         it("Error received when selling invalid NFT", async () => {
             await truffleAssert.reverts(
-                ownedInstance.sold(10, {from: accounts[0]}),
+                ownedInstance.sold(10, false, {from: accounts[0]}),
                 "Invalid Id inserted"
             );
         });
@@ -58,7 +58,7 @@ contract("OwnedNFTs", (accounts) => {
 
     describe("Transferring", async () =>{
         it("Transferring out of contract", async () => {
-            let transfer = await ownedInstance.remove(1, {from: accounts[0]});
+            let transfer = await ownedInstance.remove(1, false, {from: accounts[0]});
             truffleAssert.eventEmitted(transfer, "nftTransfered", ev => {
                 return ev.price.toNumber() === 200 && ev.tokenId.toNumber() === 2;
             })
@@ -66,21 +66,21 @@ contract("OwnedNFTs", (accounts) => {
 
         it("Error received when transferring transferred NFT", async () => {
             await truffleAssert.reverts(
-                ownedInstance.remove(1, {from: accounts[0]}),
+                ownedInstance.remove(1, false, {from: accounts[0]}),
                 "NFT has already been transferred"
             )
         });
 
         it("Error received when transferring invalid NFT", async () => {
             await truffleAssert.reverts(
-                ownedInstance.remove(10, {from: accounts[0]}),
+                ownedInstance.remove(10, false, {from: accounts[0]}),
                 "Invalid Id inserted"
             )
         });
 
         it("Error received when transferring unsold NFT", async () => {
             await truffleAssert.reverts(
-                ownedInstance.remove(0, {from: accounts[0]}),
+                ownedInstance.remove(0, false, {from: accounts[0]}),
                 "NFT has not been sold"
             )
         });

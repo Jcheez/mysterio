@@ -25,7 +25,7 @@ contract OwnedNFTs {
 
     function add(uint256 price, address nftAddress, uint256 tokenId, bool isValued) public {
         if (isValued) {
-            valuedNFTs[nextAvailableSlot] = nft(nftAddress, price, tokenId, isValued);
+            valuedNFTs[nextSlot] = nft(nftAddress, price, tokenId, isValued);
             nextSlot += 1;
         } else {
             unwantedNFTs[nextAvailableSlot] = nft(nftAddress, price, tokenId, isValued);
@@ -62,9 +62,9 @@ contract OwnedNFTs {
         if (isvalued) {
             require(id < nextSlot, "Invalid Id inserted");
             require(valuedNFTs[id].parentContract != address(0), "NFT has already been sold");
-            soldValuedNFTs[id] = unwantedNFTs[id];
-            unwantedNFTs[id].parentContract = address(0);
-            emit nftSold(soldNFTs[id].price, soldNFTs[id].parentContract, soldNFTs[id].tokenId);
+            soldValuedNFTs[id] = valuedNFTs[id];
+            valuedNFTs[id].parentContract = address(0);
+            emit nftSold(soldValuedNFTs[id].price, soldValuedNFTs[id].parentContract, soldValuedNFTs[id].tokenId);
         } else {
             require(id < nextAvailableSlot, "Invalid Id inserted");
             require(unwantedNFTs[id].parentContract != address(0), "NFT has already been sold");
@@ -88,7 +88,7 @@ contract OwnedNFTs {
     }
 
     function getSize(bool isValued) public view returns(uint256) {
-        return isValued ? (nextAvailableSlot == 0 ? 0 : nextAvailableSlot-1) : (nextSlot == 0 ? 0 : nextSlot-1);
+        return isValued ? (nextSlot == 0 ? 0 : nextSlot-1) : (nextAvailableSlot == 0 ? 0 : nextAvailableSlot-1);
     }
 
 }

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "./ownedNFTs.sol";
+import "./OwnedNFTs.sol";
 
 contract MysteryBox {
-    ownedNFTs ownedNFTInstance;
+    OwnedNFTs ownedNFTInstance;
     enum tierPrices {
         basic,
         premium,
@@ -33,7 +33,7 @@ contract MysteryBox {
     uint256 nextBoxId;
     
 
-    constructor(ownedNFTs ownedNFT) {
+    constructor(OwnedNFTs ownedNFT) {
         ownedNFTInstance = ownedNFT;
     }
 

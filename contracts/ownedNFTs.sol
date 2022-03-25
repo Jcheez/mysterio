@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract ownedNFTs {
+contract OwnedNFTs {
     uint256 private numNFTs;
     uint256 private nextAvailableSlot;
     
@@ -16,6 +16,7 @@ contract ownedNFTs {
 
     event nftAdded(uint256 price, address nftAddress, uint256 tokenId);
     event nftSold(uint256 price, address nftAddress, uint256 tokenId);
+    event nftTransfered(uint256 price, address nftAddress, uint256 tokenId);
 
     function add(uint256 price, address nftAddress, uint256 tokenId) public {
         unwantedNFTs[nextAvailableSlot] = nft(nftAddress, price, tokenId);
@@ -26,13 +27,14 @@ contract ownedNFTs {
 
     function remove(uint256 id) public returns (address parentContract, uint256 price, uint256 tokenId) {
         require(id < nextAvailableSlot, "Invalid Id inserted");
+        require(unwantedNFTs[id].parentContract == address(0), "NFT has not been sold");
         require(soldNFTs[id].parentContract != address(0), "NFT has already been transferred");
         address nftAdd = soldNFTs[id].parentContract;
         uint256 nftprice = soldNFTs[id].price;
         uint256 nfttokenId = soldNFTs[id].tokenId;
 
         soldNFTs[id].parentContract = address(0);
-
+        emit nftTransfered(nftprice, nftAdd, nfttokenId);
         return (nftAdd, nftprice, nfttokenId);
     }
 

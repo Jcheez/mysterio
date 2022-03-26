@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 contract OwnedNFTs {
-  
     struct nft {
         address parentContract;
         uint256 price;
@@ -10,12 +9,12 @@ contract OwnedNFTs {
         bool isValued;
     }
 
-    mapping(uint256 => nft) private unwantedNFTs;    
+    mapping(uint256 => nft) private unwantedNFTs;
     mapping(uint256 => nft) private soldNFTs;
     uint256 private nextAvailableSlot;
     uint256 private unwantedSize;
 
-    mapping(uint256 => nft) private valuedNFTs;    
+    mapping(uint256 => nft) private valuedNFTs;
     mapping(uint256 => nft) private soldValuedNFTs;
     uint256 private nextSlot;
     uint256 private valuedSize;
@@ -24,24 +23,48 @@ contract OwnedNFTs {
     event nftSold(uint256 price, address nftAddress, uint256 tokenId);
     event nftTransfered(uint256 price, address nftAddress, uint256 tokenId);
 
-    function add(uint256 price, address nftAddress, uint256 tokenId, bool isValued) public {
+    function add(
+        uint256 price,
+        address nftAddress,
+        uint256 tokenId,
+        bool isValued
+    ) public {
         if (isValued) {
             valuedNFTs[nextSlot] = nft(nftAddress, price, tokenId, isValued);
             nextSlot += 1;
             valuedSize += 1;
         } else {
-            unwantedNFTs[nextAvailableSlot] = nft(nftAddress, price, tokenId, isValued);
+            unwantedNFTs[nextAvailableSlot] = nft(
+                nftAddress,
+                price,
+                tokenId,
+                isValued
+            );
             nextAvailableSlot += 1;
             unwantedSize += 1;
         }
         emit nftAdded(price, nftAddress, tokenId);
     }
 
-    function remove(uint256 id, bool isValued) public returns (address parentContract, uint256 price, uint256 tokenId, bool value) {
+    function remove(uint256 id, bool isValued)
+        public
+        returns (
+            address parentContract,
+            uint256 price,
+            uint256 tokenId,
+            bool value
+        )
+    {
         if (isValued) {
             require(id < nextSlot, "Invalid Id inserted");
-            require(valuedNFTs[id].parentContract == address(0), "NFT has not been sold");
-            require(soldValuedNFTs[id].parentContract != address(0), "NFT has already been transferred");
+            require(
+                valuedNFTs[id].parentContract == address(0),
+                "NFT has not been sold"
+            );
+            require(
+                soldValuedNFTs[id].parentContract != address(0),
+                "NFT has already been transferred"
+            );
             address NFTAdd = soldValuedNFTs[id].parentContract;
             uint256 NFTprice = soldValuedNFTs[id].price;
             uint256 NFTtokenId = soldValuedNFTs[id].tokenId;
@@ -50,8 +73,14 @@ contract OwnedNFTs {
             return (NFTAdd, NFTprice, NFTtokenId, isValued);
         }
         require(id < nextAvailableSlot, "Invalid Id inserted");
-        require(unwantedNFTs[id].parentContract == address(0), "NFT has not been sold");
-        require(soldNFTs[id].parentContract != address(0), "NFT has already been transferred");
+        require(
+            unwantedNFTs[id].parentContract == address(0),
+            "NFT has not been sold"
+        );
+        require(
+            soldNFTs[id].parentContract != address(0),
+            "NFT has already been transferred"
+        );
         address nftAdd = soldNFTs[id].parentContract;
         uint256 nftprice = soldNFTs[id].price;
         uint256 nfttokenId = soldNFTs[id].tokenId;
@@ -63,36 +92,66 @@ contract OwnedNFTs {
     function sold(uint256 id, bool isvalued) public {
         if (isvalued) {
             require(id < nextSlot, "Invalid Id inserted");
-            require(valuedNFTs[id].parentContract != address(0), "NFT has already been sold");
+            require(
+                valuedNFTs[id].parentContract != address(0),
+                "NFT has already been sold"
+            );
             soldValuedNFTs[id] = valuedNFTs[id];
             valuedNFTs[id].parentContract = address(0);
             valuedSize -= 1;
-            emit nftSold(soldValuedNFTs[id].price, soldValuedNFTs[id].parentContract, soldValuedNFTs[id].tokenId);
+            emit nftSold(
+                soldValuedNFTs[id].price,
+                soldValuedNFTs[id].parentContract,
+                soldValuedNFTs[id].tokenId
+            );
         } else {
             require(id < nextAvailableSlot, "Invalid Id inserted");
-            require(unwantedNFTs[id].parentContract != address(0), "NFT has already been sold");
+            require(
+                unwantedNFTs[id].parentContract != address(0),
+                "NFT has already been sold"
+            );
             soldNFTs[id] = unwantedNFTs[id];
             unwantedNFTs[id].parentContract = address(0);
-            unwantedSize += 1;
-            emit nftSold(soldNFTs[id].price, soldNFTs[id].parentContract, soldNFTs[id].tokenId);
+            unwantedSize -= 1;
+            emit nftSold(
+                soldNFTs[id].price,
+                soldNFTs[id].parentContract,
+                soldNFTs[id].tokenId
+            );
         }
-
     }
 
-    function getParentContract(uint256 id, bool isValued) public view returns(address) {
-        return isValued ? valuedNFTs[id].parentContract : unwantedNFTs[id].parentContract;
+    function getParentContract(uint256 id, bool isValued)
+        public
+        view
+        returns (address)
+    {
+        return
+            isValued
+                ? valuedNFTs[id].parentContract
+                : unwantedNFTs[id].parentContract;
     }
 
-    function getPrice(uint256 id, bool isValued) public view returns(uint256) {
+    function getPrice(uint256 id, bool isValued) public view returns (uint256) {
         return isValued ? valuedNFTs[id].price : unwantedNFTs[id].price;
     }
 
-    function getTokenId(uint256 id, bool isValued) public view returns(uint256) {
+    function getTokenId(uint256 id, bool isValued)
+        public
+        view
+        returns (uint256)
+    {
         return isValued ? valuedNFTs[id].tokenId : unwantedNFTs[id].tokenId;
     }
 
-    function getSize(bool isValued) public view returns(uint256) {
+    function getSize(bool isValued) public view returns (uint256) {
         return isValued ? valuedSize : unwantedSize;
     }
 
+    function indexUpperBound(bool isValued) public view returns (uint256) {
+        return
+            isValued
+                ? (nextSlot == 0 ? 0 : nextSlot - 1)
+                : (nextAvailableSlot == 0 ? 0 : nextAvailableSlot - 1);
+    }
 }

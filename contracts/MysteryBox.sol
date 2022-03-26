@@ -77,15 +77,23 @@ contract MysteryBox {
         // fill up the box with nfts though rng
         while (minVal < boxMinPrice) {
             if (rareNFT == 1) {
-                // rare NFT draw, which might exceed max value
-                uint256 rngNumR = rngNFT(ownedNFTInstance.getSize(true));
+                // rare NFT draw
+                if (ownedNFTInstance.getSize(true) == 0) {
+                    rareNFT--;
+                    continue; // no more rare to draw, skip to normal NFTs
+                }
+                uint256 rngNumR = rngNFT(
+                    ownedNFTInstance.indexUpperBound(true)
+                );
                 while (
                     ownedNFTInstance.getParentContract(rngNumR, true) ==
                     address(0)
                 ) {
-                    uint256 sizeValued = ownedNFTInstance.getSize(true) == 0
+                    uint256 sizeValued = ownedNFTInstance.indexUpperBound(
+                        true
+                    ) == 0
                         ? 1
-                        : ownedNFTInstance.getSize(true);
+                        : ownedNFTInstance.indexUpperBound(true);
                     rngNumR = (rngNumR + 1) % sizeValued;
                 }
                 uint256 priceOfNFTDrawnR = ownedNFTInstance.getPrice(
@@ -108,15 +116,17 @@ contract MysteryBox {
                 BoxnftIds.push(rngNumR);
                 rareNFT--;
             }
-
+            if (ownedNFTInstance.getSize(false) == 0) {
+                break; // no more NFTs to fill, break infinite loop
+            }
             // filling up the box with other NFTs
-            uint256 rngNum = rngNFT(ownedNFTInstance.getSize(false));
+            uint256 rngNum = rngNFT(ownedNFTInstance.indexUpperBound(false));
             while (
                 ownedNFTInstance.getParentContract(rngNum, false) == address(0)
             ) {
-                uint256 size = ownedNFTInstance.getSize(false) == 0
+                uint256 size = ownedNFTInstance.indexUpperBound(false) == 0
                     ? 1
-                    : ownedNFTInstance.getSize(false);
+                    : ownedNFTInstance.indexUpperBound(false);
                 rngNum = (rngNum + 1) % size;
             }
             uint256 priceOfNFTDrawn = ownedNFTInstance.getPrice(rngNum, false);
@@ -236,6 +246,6 @@ contract MysteryBox {
     }
 
     function getOwnedInstance() public view returns (uint256) {
-        return ownedNFTInstance.getSize(false);
+        return ownedNFTInstance.indexUpperBound(false);
     }
 }

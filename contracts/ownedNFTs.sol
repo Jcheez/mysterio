@@ -2,8 +2,7 @@
 pragma solidity ^0.8.0;
 
 contract OwnedNFTs {
-    uint256 private numNFTs;
-    
+  
     struct nft {
         address parentContract;
         uint256 price;
@@ -14,10 +13,12 @@ contract OwnedNFTs {
     mapping(uint256 => nft) private unwantedNFTs;    
     mapping(uint256 => nft) private soldNFTs;
     uint256 private nextAvailableSlot;
+    uint256 private unwantedSize;
 
     mapping(uint256 => nft) private valuedNFTs;    
     mapping(uint256 => nft) private soldValuedNFTs;
     uint256 private nextSlot;
+    uint256 private valuedSize;
 
     event nftAdded(uint256 price, address nftAddress, uint256 tokenId);
     event nftSold(uint256 price, address nftAddress, uint256 tokenId);
@@ -27,11 +28,12 @@ contract OwnedNFTs {
         if (isValued) {
             valuedNFTs[nextSlot] = nft(nftAddress, price, tokenId, isValued);
             nextSlot += 1;
+            valuedSize += 1;
         } else {
             unwantedNFTs[nextAvailableSlot] = nft(nftAddress, price, tokenId, isValued);
             nextAvailableSlot += 1;
+            unwantedSize += 1;
         }
-        numNFTs += 1;
         emit nftAdded(price, nftAddress, tokenId);
     }
 
@@ -64,12 +66,14 @@ contract OwnedNFTs {
             require(valuedNFTs[id].parentContract != address(0), "NFT has already been sold");
             soldValuedNFTs[id] = valuedNFTs[id];
             valuedNFTs[id].parentContract = address(0);
+            valuedSize -= 1;
             emit nftSold(soldValuedNFTs[id].price, soldValuedNFTs[id].parentContract, soldValuedNFTs[id].tokenId);
         } else {
             require(id < nextAvailableSlot, "Invalid Id inserted");
             require(unwantedNFTs[id].parentContract != address(0), "NFT has already been sold");
             soldNFTs[id] = unwantedNFTs[id];
             unwantedNFTs[id].parentContract = address(0);
+            unwantedSize += 1;
             emit nftSold(soldNFTs[id].price, soldNFTs[id].parentContract, soldNFTs[id].tokenId);
         }
 
@@ -88,7 +92,7 @@ contract OwnedNFTs {
     }
 
     function getSize(bool isValued) public view returns(uint256) {
-        return isValued ? (nextSlot == 0 ? 0 : nextSlot-1) : (nextAvailableSlot == 0 ? 0 : nextAvailableSlot-1);
+        return isValued ? valuedSize : unwantedSize;
     }
 
 }

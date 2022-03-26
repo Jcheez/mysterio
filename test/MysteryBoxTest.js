@@ -35,11 +35,11 @@ contract("MysteryBox", (accounts) => {
         it("Premium Box Made", async () => {
             //let v2 = await eth('0.11');
             await testNFTInstance.mint(ownedInstance.address);
-        await testNFTInstance.mint(ownedInstance.address);
-        await testNFTInstance.mint(ownedInstance.address);
-        await ownedInstance.add(eth('0.035'), testNFTInstance.address, 0, false, {from: accounts[0]});
-        await ownedInstance.add(eth('0.038'), testNFTInstance.address, 1, false, {from: accounts[0]});
-        await ownedInstance.add(eth('0.040'), testNFTInstance.address, 2, true, {from: accounts[0]});
+            await testNFTInstance.mint(ownedInstance.address);
+            await testNFTInstance.mint(ownedInstance.address);
+            await ownedInstance.add(eth('0.035'), testNFTInstance.address, 0, false, {from: accounts[0]});
+            await ownedInstance.add(eth('0.038'), testNFTInstance.address, 1, false, {from: accounts[0]});
+            await ownedInstance.add(eth('0.040'), testNFTInstance.address, 2, true, {from: accounts[0]});
             let m1 = await mBoxInstance.makeBox(1, accounts[1], {from: accounts[1]})
             //truffleAssert.passes(m1);
             truffleAssert.eventEmitted(m1, "boxMade");

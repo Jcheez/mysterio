@@ -151,7 +151,7 @@ contract OwnedNFTs {
     function indexUpperBound(bool isValued) public view returns (uint256) {
         return
             isValued
-                ? (nextSlot == 0 ? 0 : nextSlot - 1)
-                : (nextAvailableSlot == 0 ? 0 : nextAvailableSlot - 1);
+                ? nextSlot
+                : nextAvailableSlot;
     }
 }

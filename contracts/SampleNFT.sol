@@ -11,11 +11,7 @@ contract SampleNFT is ERC721, Ownable {
         _owner = payable(msg.sender);
     }
 
-    function mint(address receiver)
-        public
-        onlyOwner
-        returns (bool)
-    {
+    function mint(address receiver) public onlyOwner returns (bool) {
         uint256 _tokenId = totalSupply;
         totalSupply += 1;
         _mint(receiver, _tokenId);

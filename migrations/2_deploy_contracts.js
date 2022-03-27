@@ -8,8 +8,8 @@ module.exports = (deployer, network, accounts) => {
 	deployer.deploy(SimpleStorage).then(() => {
 		return deployer.deploy(MysteryNFT).then(() => {
 			return deployer.deploy(ownedNFTs).then(() => {
-				return deployer.deploy(MysteryBox, ownedNFTs.address).then(() => {
-					return deployer.deploy(testNFT);
+				return deployer.deploy(testNFT). then(() => {
+					return deployer.deploy(MysteryBox, ownedNFTs.address);
 				})
 			})
 		})

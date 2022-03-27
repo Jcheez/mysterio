@@ -5,11 +5,6 @@ import "./ownedNFTs.sol";
 
 contract MysteryBox {
     OwnedNFTs ownedNFTInstance;
-    //enum tierPrices {
-    //    basic,
-    //    premium,
-    //    mysterious
-    //}
 
     struct Box {
         uint256 id;
@@ -26,8 +21,6 @@ contract MysteryBox {
         uint256 tokenId;
         bool isValued;
     }
-    nft[] boxNFTList;
-    uint256[] BoxnftIds;
 
     mapping(address => Box[]) ownedBoxes;
     mapping(uint256 => Box) boxList;
@@ -41,11 +34,7 @@ contract MysteryBox {
     event transferMade(address purchaser);
     event boxOpen(address purchaser);
 
-    function makeBox(uint8 tier, address purchaser)
-        public
-        payable
-        returns (uint256)
-    {
+    function makeBox(uint8 tier, address purchaser) private returns (uint256) {
         nextBoxId++;
         uint16 boxNFTid = 0;
         uint256 minVal = 0;
@@ -53,22 +42,18 @@ contract MysteryBox {
 
         uint8 rareNFT = 0;
         uint128 boxMinPrice;
-        //uint128 boxMaxPrice;
         if (tier == 0) {
             boxMinPrice = 0.03 ether;
-            //boxMaxPrice = 0.035 ether;
             if (rareInt >= 95) {
                 rareNFT = 1;
             }
         } else if (tier == 1) {
             boxMinPrice = 0.065 ether;
-            //boxMaxPrice = 0.080 ether;
             if (rareInt >= 70) {
                 rareNFT = 1;
             }
         } else {
             boxMinPrice = 0.1 ether;
-            //boxMaxPrice = 0.125 ether;
             if (rareInt >= 40) {
                 rareNFT = 1;
             }
@@ -101,8 +86,11 @@ contract MysteryBox {
                     true
                 );
                 boxNFTid++;
-
-                boxNFTList.push(
+                // update minval
+                minVal += priceOfNFTDrawnR;
+                ownedNFTInstance.sold(rngNumR, true);
+                rareNFT--;
+                boxList[nextBoxId].nfts.push(
                     nft(
                         ownedNFTInstance.getParentContract(rngNumR, true),
                         ownedNFTInstance.getPrice(rngNumR, true),
@@ -110,11 +98,7 @@ contract MysteryBox {
                         true
                     )
                 );
-                // update minval
-                minVal += priceOfNFTDrawnR;
-                ownedNFTInstance.sold(rngNumR, true);
-                BoxnftIds.push(rngNumR);
-                rareNFT--;
+                boxList[nextBoxId].nftIds.push(rngNumR);
             }
             if (ownedNFTInstance.getSize(false) == 0) {
                 break; // no more NFTs to fill, break infinite loop
@@ -132,7 +116,10 @@ contract MysteryBox {
             uint256 priceOfNFTDrawn = ownedNFTInstance.getPrice(rngNum, false);
             boxNFTid++;
 
-            boxNFTList.push(
+            // update minval
+            minVal += priceOfNFTDrawn;
+            ownedNFTInstance.sold(rngNum, false);
+            boxList[nextBoxId].nfts.push(
                 nft(
                     ownedNFTInstance.getParentContract(rngNum, false),
                     ownedNFTInstance.getPrice(rngNum, false),
@@ -140,22 +127,15 @@ contract MysteryBox {
                     false
                 )
             );
-            // update minval
-            minVal += priceOfNFTDrawn;
-            ownedNFTInstance.sold(rngNum, false);
-            BoxnftIds.push(rngNum);
+            boxList[nextBoxId].nftIds.push(rngNum);
         }
 
         // add box to boxList
         boxList[nextBoxId].id = nextBoxId;
         boxList[nextBoxId].purchaser = purchaser;
-        boxList[nextBoxId].nfts = boxNFTList;
         boxList[nextBoxId].tier = tier;
         boxList[nextBoxId].isOpen = false;
-        boxList[nextBoxId].nftIds = BoxnftIds;
 
-        delete boxNFTList;
-        delete BoxnftIds;
         emit boxMade(nextBoxId, tier);
         return nextBoxId;
     }
@@ -169,8 +149,7 @@ contract MysteryBox {
             );
             uint256 newBoxId = makeBox(tier, purchaser);
             Box[] storage listOfBoxes = ownedBoxes[msg.sender];
-            uint256 length = listOfBoxes.length;
-            listOfBoxes[length] = boxList[newBoxId];
+            listOfBoxes.push(boxList[newBoxId]);
             ownedBoxes[msg.sender] = listOfBoxes;
             emit transferMade(purchaser);
         } else if (tier == 1) {
@@ -180,8 +159,7 @@ contract MysteryBox {
             );
             uint256 newBoxId = makeBox(tier, purchaser);
             Box[] storage listOfBoxes = ownedBoxes[msg.sender];
-            uint256 length = listOfBoxes.length;
-            listOfBoxes[length] = boxList[newBoxId];
+            listOfBoxes.push(boxList[newBoxId]);
             ownedBoxes[msg.sender] = listOfBoxes;
             emit transferMade(purchaser);
         } else {
@@ -191,8 +169,7 @@ contract MysteryBox {
             );
             uint256 newBoxId = makeBox(tier, purchaser);
             Box[] storage listOfBoxes = ownedBoxes[msg.sender];
-            uint256 length = listOfBoxes.length;
-            listOfBoxes[length] = boxList[newBoxId];
+            listOfBoxes.push(boxList[newBoxId]);
             ownedBoxes[msg.sender] = listOfBoxes;
             emit transferMade(purchaser);
         }
@@ -203,26 +180,32 @@ contract MysteryBox {
             boxList[boxID].purchaser == msg.sender,
             "this box does not belong to you"
         );
+        require(boxList[boxID].isOpen == false, "box has already been opened");
         // transfers all NFTs in the box
         Box memory yourBox = boxList[boxID];
-        require(yourBox.isOpen == false, "box has already been opened");
-        ERC721[] memory nfts;
+        ERC721[] memory nftAddresses;
         for (uint256 i = 0; i < yourBox.nfts.length; i++) {
-            // need to check if there needs to be owner for this contract
-            // check how to get nft id for transferring
+            if (yourBox.nfts[i].parentContract == address(0)) {
+                break;
+            }
+            ERC721(yourBox.nfts[i].parentContract).setApprovalForAll(
+                msg.sender,
+                true
+            );
             ERC721(yourBox.nfts[i].parentContract).transferFrom(
                 address(this),
                 msg.sender,
                 yourBox.nfts[i].tokenId
             );
-            nfts[i] = ERC721(yourBox.nfts[i].parentContract);
+            nftAddresses[i] = ERC721(yourBox.nfts[i].parentContract);
             ownedNFTInstance.remove(
                 yourBox.nftIds[i],
                 yourBox.nfts[i].isValued
             );
         }
-        yourBox.isOpen = true;
-        return nfts;
+        boxList[boxID].isOpen = true;
+        emit boxOpen(msg.sender);
+        return nftAddresses;
     }
 
     function checkBoxesIds() public view returns (Box[] memory) {

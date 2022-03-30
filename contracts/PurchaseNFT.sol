@@ -1,6 +1,10 @@
+// SPDX-License-Identifier: MIT
+
 pragma solidity >=0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "./MysteryToken.sol";
+import "./ownedNFTs.sol";
 
 
 contract PurchaseNFT {
@@ -8,9 +12,11 @@ contract PurchaseNFT {
     uint private _listingId = 0;
 	mapping(uint => Listing) private _listings; // get the listing from listing id
     MysteryToken mysteryTokenContract;
+    OwnedNFTs ownedNFTContract; 
 
-    constructor(MysteryToken mysteryTokenAddress) {
+    constructor(MysteryToken mysteryTokenAddress, OwnedNFTs ownedNFTsAddress ) {
         mysteryTokenContract = mysteryTokenAddress;
+        ownedNFTContract = ownedNFTsAddress;
     }
 
     enum ListingStatus {
@@ -21,6 +27,7 @@ contract PurchaseNFT {
 	struct Listing {
 		ListingStatus status;
 		address seller;
+        address token;
 		uint tokenId;
 		uint price;
 	}
@@ -35,19 +42,20 @@ contract PurchaseNFT {
 	event Bought(
 		uint listingId,
 		uint tokenId,
+        address buyer,
 		uint price
 	);
 
 
-    function listNFT(uint tokenId, uint price) external {
+    function listNFT(address token, uint tokenId, uint price) external {
 		//transferring the nft from the seller to the contract
-        _transferFrom(msg.sender, address(this), tokenId);
+        IERC721(token).transferFrom(msg.sender, address(this), tokenId);
         
         // create a new listing
 		Listing memory listing = Listing(
 			ListingStatus.Active,
 			msg.sender,
-			token,
+            token,
 			tokenId,
 			price
 		);
@@ -64,7 +72,7 @@ contract PurchaseNFT {
 		);
 	}
 
-    function buyNFT(uint listingId) private payable {
+    function buyNFT(uint listingId) public payable {
 		// get the listing 
         Listing storage listing = _listings[listingId];
 
@@ -77,25 +85,23 @@ contract PurchaseNFT {
 		listing.status = ListingStatus.Sold;
 
         // transfer the nft to the msg.sender (buyer)
-		_transferFrom(address(this), msg.sender, listing.tokenId);
+		IERC721(listing.token).transferFrom(address(this), msg.sender, listing.tokenId);
 		
         // require(msg.value >= listing.price, "Insufficient payment");
         // payment by mystery token 
-        mysteryTokenContract.transferCreditFrom(msg.sender, listing.seller, price);
+        mysteryTokenContract.transferCreditFrom(msg.sender, listing.seller, listing.price);
 
         
 
-		emit Sale(
+		emit Bought(
 			listingId,
-			msg.sender,
-			listing.token,
 			listing.tokenId,
+            msg.sender,
 			listing.price
 		);
 
         // add the nft into our own storage 
-        const nftToAdd = new OwnedNft(address(this), listing.price, listing.tokenId, false);
-        nftToAdd.add(nftToAdd.price, nftToAdd.address, nftToAdd.tokenId, nftToAdd.isValued);
+        ownedNFTContract.add(listing.price, listing.token, listing.tokenId, false);
 	}
 
 }

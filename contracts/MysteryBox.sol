@@ -2,9 +2,13 @@
 pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "./ownedNFTs.sol";
+import "./MysteryStaking.sol";
+import "./MysteryNFT.sol";
 
 contract MysteryBox {
     OwnedNFTs ownedNFTInstance;
+    MysteryStaking mysterystakingInstance;
+    MysteryNFT mysteryNFTInstance;
 
     struct Box {
         uint256 id;
@@ -26,8 +30,14 @@ contract MysteryBox {
     mapping(uint256 => Box) boxList;
     uint256 nextBoxId;
 
-    constructor(OwnedNFTs ownedNFT) {
+    constructor(
+        OwnedNFTs ownedNFT,
+        MysteryStaking mysterystaking,
+        MysteryNFT mysteryNFT
+    ) {
         ownedNFTInstance = ownedNFT;
+        mysterystakingInstance = mysterystaking;
+        mysteryNFTInstance = mysteryNFT;
     }
 
     event boxMade(uint256 boxId, uint8 tier);
@@ -184,6 +194,7 @@ contract MysteryBox {
         // transfers all NFTs in the box
         Box memory yourBox = boxList[boxID];
         ERC721[] memory nftAddresses;
+        address[] memory mystNFTminting;
         for (uint256 i = 0; i < yourBox.nfts.length; i++) {
             if (yourBox.nfts[i].parentContract == address(0)) {
                 break;
@@ -197,12 +208,14 @@ contract MysteryBox {
                 msg.sender,
                 yourBox.nfts[i].tokenId
             );
+            mystNFTminting[i] = yourBox.nfts[i].parentContract;
             nftAddresses[i] = ERC721(yourBox.nfts[i].parentContract);
             ownedNFTInstance.remove(
                 yourBox.nftIds[i],
                 yourBox.nfts[i].isValued
             );
         }
+        mysteryNFTInstance.mint(boxList[boxID].tier, mystNFTminting);
         boxList[boxID].isOpen = true;
         emit boxOpen(msg.sender);
         return nftAddresses;

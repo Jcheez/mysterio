@@ -185,6 +185,47 @@ contract MysteryBox {
         }
     }
 
+    function transferMYST(uint8 tier, address purchaser) public {
+        // Do require checks on msg.value
+        if (tier == 0) {
+            require(
+                mysterystakingInstance.getERCInstance().balanceOf(msg.sender) >=
+                    5,
+                "5 MYST is needed to make the basic box"
+            );
+            mysterystakingInstance.getERCInstance().deduct(msg.sender, 5);
+            uint256 newBoxId = makeBox(tier, purchaser);
+            Box[] storage listOfBoxes = ownedBoxes[msg.sender];
+            listOfBoxes.push(boxList[newBoxId]);
+            ownedBoxes[msg.sender] = listOfBoxes;
+            emit transferMade(purchaser);
+        } else if (tier == 1) {
+            require(
+                mysterystakingInstance.getERCInstance().balanceOf(msg.sender) >=
+                    10,
+                "10 MYST is needed to make the premium box"
+            );
+            mysterystakingInstance.getERCInstance().deduct(msg.sender, 10);
+            uint256 newBoxId = makeBox(tier, purchaser);
+            Box[] storage listOfBoxes = ownedBoxes[msg.sender];
+            listOfBoxes.push(boxList[newBoxId]);
+            ownedBoxes[msg.sender] = listOfBoxes;
+            emit transferMade(purchaser);
+        } else {
+            require(
+                mysterystakingInstance.getERCInstance().balanceOf(msg.sender) >=
+                    15,
+                "15 MYST is needed to make the mysterious box"
+            );
+            mysterystakingInstance.getERCInstance().deduct(msg.sender, 15);
+            uint256 newBoxId = makeBox(tier, purchaser);
+            Box[] storage listOfBoxes = ownedBoxes[msg.sender];
+            listOfBoxes.push(boxList[newBoxId]);
+            ownedBoxes[msg.sender] = listOfBoxes;
+            emit transferMade(purchaser);
+        }
+    }
+
     function openBox(uint256 boxID) public returns (ERC721[] memory) {
         require(
             boxList[boxID].purchaser == msg.sender,

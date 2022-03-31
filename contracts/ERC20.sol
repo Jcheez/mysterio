@@ -72,6 +72,7 @@ contract ERC20 {
     );
     event Mint(address indexed to, uint256 amount);
     event MintFinished();
+    event Deducted(address from, uint256 amount);
 
     /**
      * @dev total number of tokens in existence
@@ -204,6 +205,7 @@ contract ERC20 {
         require(amount <= balances[member]);
 
         balances[member] = balances[member].sub(amount);
+        emit Deducted(member, amount);
         return true;
     }
 }

@@ -3,13 +3,16 @@ const MysteryNFT = artifacts.require("./MysteryNFT.sol");
 const ownedNFTs = artifacts.require("./ownedNFTs.sol");
 const MysteryBox = artifacts.require("./MysteryBox.sol");
 const testNFT = artifacts.require("./SampleNFT.sol");
+const MysteryStake = artifacts.require("./MysteryStaking.sol");
 
 module.exports = (deployer, network, accounts) => {
 	deployer.deploy(SimpleStorage).then(() => {
 		return deployer.deploy(MysteryNFT).then(() => {
 			return deployer.deploy(ownedNFTs).then(() => {
 				return deployer.deploy(testNFT). then(() => {
-					return deployer.deploy(MysteryBox, ownedNFTs.address);
+					return deployer.deploy(MysteryStake). then(() => {
+						return deployer.deploy(MysteryBox, ownedNFTs.address, MysteryStake.address, MysteryNFT.address);
+					})
 				})
 			})
 		})

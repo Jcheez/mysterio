@@ -124,4 +124,8 @@ contract MysteryStaking {
         calculateRewards(user);
         return rewardsEarned[user];
     }
+
+    function getERCInstance() public view returns (ERC20) {
+        return mystToken;
+    }
 }

@@ -5,32 +5,39 @@ pragma solidity >=0.4.20;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
 contract MysteryNFT is ERC721Enumerable{
-    // bytes32[] public tokens;
-    // mapping(bytes32 => bool) exists;
-    uint256[] public tokenId; 
-    mapping(uint256 => bool) exists;
+    uint256[] public tokens;
+    uint256 tokenId;
+    mapping(uint256 => MystNFT) metadata; 
 
     constructor() ERC721("MysteryNFT", "MYSTNFT"){
+        tokenId=0;
     }
 
-    //params: maybe generate hash for token based on inputs and rarity?
-    function mint(uint256 num) public{
-        // bytes32 joined = bytes32(this.generateId(rarity, inputs));
-        // bytes32 id = keccak256(joined);
-        // tokens.push(joined);
-        // exists[joined] = true;
-        // _mint(msg.sender, uint256(joined));
-        require(!exists[num]);
-        tokenId.push(num);
-        exists[num]=true;
-        _mint(msg.sender, num);
+    struct MystNFT{
+        uint8 rarity;
+        address[] contents;
     }
 
-    function generateId(uint8 rarity, string[] calldata words) external pure returns (bytes memory) {
-        bytes memory output = abi.encodePacked(rarity);
-        for (uint256 i = 0; i < words.length; i++) {
-            output = abi.encodePacked(output, words[i]);
+
+    function mint(uint8 rarity, address[] memory addresses) public {
+        tokens.push(tokenId);
+        MystNFT memory data = MystNFT(rarity, addresses);
+        metadata[tokenId] = data;
+        _mint(msg.sender, tokenId);
+        tokenId+=1;
+    }
+
+    modifier numberExists(uint256 id){
+        if (id<tokenId){
+            _;
         }
-        return output;
+    }
+
+    function getRarity(uint256 id) public view numberExists(id) returns (uint8){
+        return metadata[id].rarity;
+    }
+
+    function getContents(uint256 id) public view numberExists(id) returns (address[] memory){
+        return metadata[id].contents;
     }
 }

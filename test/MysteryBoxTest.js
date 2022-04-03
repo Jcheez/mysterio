@@ -5,6 +5,7 @@ var assert = require("assert");
 const ownedNFTs = artifacts.require("./ownedNFTs.sol");
 const testNFT = artifacts.require("./SampleNFT.sol");
 const MysteryBox = artifacts.require("./MysteryBox.sol");
+const MysteryStake = artifacts.require("./MysteryStaking.sol");
 
 function eth(n) {
     return web3.utils.toWei(n, 'ether');
@@ -16,6 +17,7 @@ contract("MysteryBox", (accounts) => {
         ownedInstance = await ownedNFTs.deployed();
         testNFTInstance = await testNFT.deployed();
         mBoxInstance = await MysteryBox.deployed();
+        mStakeInstance = await MysteryStake.deployed();
         
     });
 
@@ -48,6 +50,18 @@ contract("MysteryBox", (accounts) => {
             truffleAssert.eventEmitted(m1, "transferMade");
         })
 
+        it("Basic Box Made & Transferred Using MYST tokens", async () => {
+            await testNFTInstance.mint(mBoxInstance.address);
+            await testNFTInstance.mint(mBoxInstance.address);
+            await ownedInstance.add(eth('0.035'), testNFTInstance.address, 5, false, {from: accounts[0]});
+            await ownedInstance.add(eth('0.040'), testNFTInstance.address, 6, true, {from: accounts[0]});
+            let v3 = await eth('0.06');
+            let m0 = await mStakeInstance.getMYST({from: accounts[4], value: v3});
+            let m1 = await mBoxInstance.transferMYST(0, accounts[4], {from: accounts[4]})
+            truffleAssert.eventEmitted(m1, "boxMade");
+            truffleAssert.eventEmitted(m1, "transferMade");
+        })
+
         it("Opening Someone Else's Box", async () => {
             await truffleAssert.reverts(mBoxInstance.openBox(1, {from: accounts[3]}), "this box does not belong to you");
         })
@@ -55,12 +69,12 @@ contract("MysteryBox", (accounts) => {
         it("Opening Box", async () => {
             let v2 = await eth('0.11');
             let m1 = await mBoxInstance.transfer(1, accounts[2], {from: accounts[2], value: v2})
-            let m2 = await mBoxInstance.openBox(2, {from: accounts[2]});
+            let m2 = await mBoxInstance.openBox(3, {from: accounts[2]});
             truffleAssert.eventEmitted(m2, "boxOpen");
         })
 
         it("2nd opening of same Box", async () => {
-            await truffleAssert.reverts(mBoxInstance.openBox(2, {from: accounts[2]}), "box has already been opened");
+            await truffleAssert.reverts(mBoxInstance.openBox(3, {from: accounts[2]}), "box has already been opened");
         })
 
     })

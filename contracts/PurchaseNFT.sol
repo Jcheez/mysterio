@@ -3,19 +3,22 @@
 pragma solidity >=0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "./MysteryToken.sol";
+// import "./MysteryToken.sol";
 import "./ownedNFTs.sol";
+import "./ERC20.sol";
+
 
 
 contract PurchaseNFT {
     
     uint private _listingId = 0;
 	mapping(uint => Listing) private _listings; // get the listing from listing id
-    MysteryToken mysteryTokenContract;
+    // MysteryToken mysteryTokenContract;
+    ERC20 mysteryToken; 
     OwnedNFTs ownedNFTContract; 
 
-    constructor(MysteryToken mysteryTokenAddress, OwnedNFTs ownedNFTsAddress ) {
-        mysteryTokenContract = mysteryTokenAddress;
+    constructor(ERC20 mysteryTokenAddress, OwnedNFTs ownedNFTsAddress ) {
+        mysteryToken = mysteryTokenAddress;
         ownedNFTContract = ownedNFTsAddress;
     }
 
@@ -89,7 +92,7 @@ contract PurchaseNFT {
 		
         // require(msg.value >= listing.price, "Insufficient payment");
         // payment by mystery token 
-        mysteryTokenContract.transferCreditFrom(msg.sender, listing.seller, listing.price);
+        mysteryToken.transferFrom(msg.sender, listing.seller, listing.price);
 
         
 

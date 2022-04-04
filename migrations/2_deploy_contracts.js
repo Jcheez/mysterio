@@ -11,13 +11,11 @@ module.exports = (deployer, network, accounts) => {
 	deployer.deploy(SimpleStorage).then(() => {
 		return deployer.deploy(MysteryNFT).then(() => {
 			return deployer.deploy(ownedNFTs).then(() => {
-				return deployer.deploy(testNFT). then(() => {
-					return deployer.deploy(MysteryBox, ownedNFTs.address).then(() => {
-						return deployer.deploy(MysteryToken).then(() => {
-							return deployer.deploy(PurchaseNFT, MysteryToken.address, ownedNFTs.address).then(() => {
-								return deployer.deploy(MysteryStake). then(() => {
-									return deployer.deploy(MysteryBox, ownedNFTs.address, MysteryStake.address, MysteryNFT.address);
-								})
+				return deployer.deploy(testNFT).then(() => {
+					return deployer.deploy(MysteryToken).then(() => {
+						return deployer.deploy(PurchaseNFT, MysteryToken.address, ownedNFTs.address).then(() => {
+							return deployer.deploy(MysteryStake).then(() => {
+								return deployer.deploy(MysteryBox, ownedNFTs.address, MysteryStake.address, MysteryNFT.address);
 							})
 						})
 					})

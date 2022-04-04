@@ -17,8 +17,8 @@ contract PurchaseNFT {
     ERC20 mysteryToken; 
     OwnedNFTs ownedNFTContract; 
 
-    constructor(ERC20 mysteryTokenAddress, OwnedNFTs ownedNFTsAddress ) {
-        mysteryToken = mysteryTokenAddress;
+    constructor(OwnedNFTs ownedNFTsAddress) {
+        mysteryToken = new ERC20();
         ownedNFTContract = ownedNFTsAddress;
     }
 
@@ -38,21 +38,23 @@ contract PurchaseNFT {
     event Listed(
 		uint listingId,
 		address seller,
+		address token,
 		uint tokenId,
 		uint price
 	);
 
 	event Bought(
 		uint listingId,
+		address buyer,
+		address token,
 		uint tokenId,
-        address buyer,
 		uint price
 	);
 
 
     function listNFT(address token, uint tokenId, uint price) external {
 		//transferring the nft from the seller to the contract
-        IERC721(token).transferFrom(msg.sender, address(this), tokenId);
+        // IERC721(token).transferFrom(IERC721(token).ownerOf(tokenId), address(this), tokenId);
         
         // create a new listing
 		Listing memory listing = Listing(
@@ -70,6 +72,7 @@ contract PurchaseNFT {
 		emit Listed(
 			_listingId,
 			msg.sender,
+			token,
 			tokenId,
 			price
 		);
@@ -79,10 +82,15 @@ contract PurchaseNFT {
 		// get the listing 
         Listing storage listing = _listings[listingId];
 
+		require(msg.sender != listing.seller, "Buyer cannot be the seller of the NFT");
+
         // check if listing is active 
 		require(listing.status == ListingStatus.Active, "Listing is not available anymore");
 
-		
+		//check if enough money 
+		mysteryToken.mint(msg.sender, msg.value);
+		require(mysteryToken.balanceOf(msg.sender) >= listing.price, 'Not enough money');
+	
 
         // set to sold 
 		listing.status = ListingStatus.Sold;
@@ -91,15 +99,15 @@ contract PurchaseNFT {
 		IERC721(listing.token).transferFrom(address(this), msg.sender, listing.tokenId);
 		
         // require(msg.value >= listing.price, "Insufficient payment");
-        // payment by mystery token 
+		
         mysteryToken.transferFrom(msg.sender, listing.seller, listing.price);
-
-        
+   
 
 		emit Bought(
 			listingId,
+			msg.sender,
+			listing.token,
 			listing.tokenId,
-            msg.sender,
 			listing.price
 		);
 

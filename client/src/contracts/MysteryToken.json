@@ -24,7 +24,8 @@
       "name": "getCredit",
       "outputs": [],
       "stateMutability": "payable",
-      "type": "function"
+      "type": "function",
+      "payable": true
     },
     {
       "inputs": [],
@@ -5585,9 +5586,17 @@
     "name": "solc",
     "version": "0.8.13+commit.abaa5c0e.Emscripten.clang"
   },
-  "networks": {},
+  "networks": {
+    "5777": {
+      "events": {},
+      "links": {},
+      "address": "0xf3E274b95613915ba156739DdF35d54E7859189e",
+      "transactionHash": "0x3b7f800e8527baff8b17b3a21d0a5b639b71e59c8e88b16e3a59e696a605fe32"
+    }
+  },
   "schemaVersion": "3.4.4",
-  "updatedAt": "2022-03-31T08:07:15.882Z",
+  "updatedAt": "2022-04-03T08:32:39.851Z",
+  "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
     "methods": {},

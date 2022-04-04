@@ -15,9 +15,8 @@ module.exports = (deployer, network, accounts) => {
 					return deployer.deploy(MysteryToken).then(() => {
 						return deployer.deploy(PurchaseNFT, ownedNFTs.address).then(() => {
 							return deployer.deploy(MysteryStake). then(() => {
-								return deployer.deploy(MysteryBox, ownedNFTs.address, MysteryStake.address, MysteryNFT.address  ).then(() => {
-									return deployer.deploy(MysteryBox, ownedNFTs.address, MysteryStake.address, MysteryNFT.address);
-								})
+								return deployer.deploy(MysteryBox, ownedNFTs.address, MysteryStake.address, MysteryNFT.address)
+	
 							})
 						})
 					})

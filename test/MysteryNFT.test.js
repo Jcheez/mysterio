@@ -1,7 +1,6 @@
 const _deploy_contracts = require("../migrations/2_deploy_contracts");
 const truffleAssert = require("truffle-assertions");
 var assert = require("assert");
-const { cp } = require("fs");
 
 const MysteryNFT = artifacts.require("./MysteryNFT.sol");
 
@@ -76,6 +75,44 @@ contract("MysteryNFT", (accounts) => {
       assert.equal(result.join(","), expected.join(","));
     });
   });
+
+  describe('ownership', async()=>{
+    it('acc[0] owns all minted nfts', async ()=>{
+      const numberOwned = await contract.balanceOf(accounts[0]);
+      assert.equal(numberOwned, 4);
+    })
+
+    it('list all indices of nfts acc[0] owns', async ()=>{
+      const numberOwned = await contract.balanceOf(accounts[0]);
+      let result = [];
+      for (let i=0; i<numberOwned;i++){
+        result.push(await contract.tokenOfOwnerByIndex(accounts[0], i));
+      }
+      let expected = [0,1,2,3];
+      assert.equal(result.join(","), expected.join(","));
+    })
+
+    it('get all metadata of nfts acc[0] owns', async ()=>{
+      const numberOwned = await contract.balanceOf(accounts[0]);
+      let rarity = [];
+      let addr = [];
+      for (let i=0; i<numberOwned;i++){
+        const idx = await contract.tokenOfOwnerByIndex(accounts[0], i);
+        rarity.push(await contract.getRarity(idx));
+        addr.push(await contract.getContents(idx));
+      }
+      rExpected = [0,1,1,2];
+      aExpected = [[],[],[],['0x111122223333444455556666777788889999aAaa']];
+
+      assert.equal(rarity.join(","), rExpected.join(","));
+      assert.equal(addr.join(","), aExpected.join(","));
+    })
+
+    it('acc[1] owns nothing', async ()=>{
+      const numberOwned = await contract.balanceOf(accounts[1]);
+      assert.equal(numberOwned, 0);
+    })
+  })
 
   
 });

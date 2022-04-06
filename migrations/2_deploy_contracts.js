@@ -3,7 +3,7 @@ const MysteryNFT = artifacts.require("./MysteryNFT.sol");
 const ownedNFTs = artifacts.require("./ownedNFTs.sol");
 const MysteryBox = artifacts.require("./MysteryBox.sol");
 const testNFT = artifacts.require("./SampleNFT.sol");
-const MysteryToken = artifacts.require("./MysteryToken.sol");
+const MysteryToken = artifacts.require("./ERC20.sol");
 const PurchaseNFT = artifacts.require("./PurchaseNFT.sol");
 const MysteryStake = artifacts.require("./MysteryStaking.sol");
 
@@ -14,7 +14,7 @@ module.exports = (deployer, network, accounts) => {
 				return deployer.deploy(testNFT). then(() => {
 					return deployer.deploy(MysteryToken).then(() => {
 						return deployer.deploy(PurchaseNFT, ownedNFTs.address).then(() => {
-							return deployer.deploy(MysteryStake). then(() => {
+							return deployer.deploy(MysteryStake, MysteryNFT.address).then(() => {
 								return deployer.deploy(MysteryBox, ownedNFTs.address, MysteryStake.address, MysteryNFT.address)
 	
 							})

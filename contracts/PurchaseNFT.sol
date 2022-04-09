@@ -6,6 +6,8 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 // import "./MysteryToken.sol";
 import "./ownedNFTs.sol";
 import "./ERC20.sol";
+import "./MysteryStaking.sol";
+
 
 
 
@@ -14,11 +16,16 @@ contract PurchaseNFT {
     uint private _listingId = 0;
 	mapping(uint => Listing) private _listings; // get the listing from listing id
     // MysteryToken mysteryTokenContract;
-    ERC20 mysteryToken; 
+    // ERC20 mysteryToken; 
     OwnedNFTs ownedNFTContract; 
+	MysteryStaking mysterystakingInstance;
 
-    constructor(OwnedNFTs ownedNFTsAddress) {
-        mysteryToken = new ERC20();
+
+    constructor(
+		OwnedNFTs ownedNFTsAddress,
+		MysteryStaking mysterystaking
+) {
+        mysterystakingInstance = mysterystaking;
         ownedNFTContract = ownedNFTsAddress;
     }
 
@@ -88,8 +95,8 @@ contract PurchaseNFT {
 		require(listing.status == ListingStatus.Active, "Listing is not available anymore");
 
 		//check if enough money 
-		mysteryToken.mint(msg.sender, msg.value);
-		require(mysteryToken.balanceOf(msg.sender) >= listing.price, 'Not enough money');
+		// mysterystakingInstance.getMYST(msg.sender, msg.value);
+		require(mysterystakingInstance.getERCInstance().balanceOf(msg.sender) >= listing.price, 'Not enough money');
 	
 
         // set to sold 
@@ -100,7 +107,7 @@ contract PurchaseNFT {
 		
         // require(msg.value >= listing.price, "Insufficient payment");
 		
-        mysteryToken.transferFrom(msg.sender, listing.seller, listing.price);
+        mysterystakingInstance.getERCInstance().transferFrom(msg.sender, listing.seller, listing.price);
    
 
 		emit Bought(

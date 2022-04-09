@@ -13,8 +13,8 @@ module.exports = (deployer, network, accounts) => {
 			return deployer.deploy(ownedNFTs).then(() => {
 				return deployer.deploy(testNFT). then(() => {
 					return deployer.deploy(MysteryToken).then(() => {
-						return deployer.deploy(PurchaseNFT, ownedNFTs.address).then(() => {
-							return deployer.deploy(MysteryStake, MysteryNFT.address).then(() => {
+						return deployer.deploy(MysteryStake, MysteryNFT.address).then(() => {
+							return deployer.deploy(PurchaseNFT, ownedNFTs.address, MysteryStake.address).then(() => {
 								return deployer.deploy(MysteryBox, ownedNFTs.address, MysteryStake.address, MysteryNFT.address)
 	
 							})

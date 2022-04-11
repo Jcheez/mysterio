@@ -29,7 +29,7 @@ contract PurchaseNFT {
 	struct Listing {
 		ListingStatus status;
 		address seller;
-        address token;
+        	address token;
 		uint tokenId;
 		uint price;
 	}

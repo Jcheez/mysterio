@@ -21,9 +21,21 @@ contract("purchaseNFTs", (accounts) => {
     });
 
     describe("Listing NFT test", async () => {
+
+        it('Unable to list NFT as it is not approved', async () => {
+            await testInstance.mint(accounts[0], {from: accounts[0]});
+                return expectRevert(
+                  purchaseInstance.listNFT(
+                  testInstance.address,
+                  new BN(0),
+                  new BN(1900000000000)
+                ), 'ERC721: transfer caller is not owner nor approved');
+              });
+        
    
         it('Listing of NFT', async () => {
-            await testInstance.mint(purchaseInstance.address);
+            await testInstance.mint(accounts[0], {from: accounts[0]});
+            await testInstance.approve(purchaseInstance.address, new BN(0), {from: accounts[0]})
 
             const l1 = await purchaseInstance.listNFT(testInstance.address, new BN(0), new BN(1900000000000), {from: accounts[0]});
             expectEvent(l1, 'Listed', {
@@ -38,28 +50,6 @@ contract("purchaseNFTs", (accounts) => {
                 assert.equal(owner, purchaseInstance.address, "Contract has to be the new owner of the NFT instance" )
             });
         });
-
-        it('NFT stored in different listing', async () => {
-            await testInstance.mint(purchaseInstance.address);
-            await testInstance.mint(purchaseInstance.address);
-            const l1 = await purchaseInstance.listNFT(testInstance.address, new BN(1), new BN(1900000000000), {from: accounts[0]});
-            const l2 = await purchaseInstance.listNFT(testInstance.address, new BN(2), new BN(1900000000000), {from: accounts[1]});
-            expectEvent(l1, 'Listed', {
-                listingId: new BN(2), 
-                seller: accounts[0],
-                token: testInstance.address, 
-                tokenId: new BN(1), 
-                price: new BN(1900000000000)
-            });
-            expectEvent(l2, 'Listed', {
-                listingId: new BN(3), 
-                seller: accounts[1],
-                token: testInstance.address, 
-                tokenId: new BN(2), 
-                price: new BN(1900000000000)
-            });
-
-        })
 
         it("Seller cannot be buyer" , async () => {
             await mStakeInstance.getMYST({from: accounts[0], value: 1000000000000000000});
@@ -96,3 +86,7 @@ contract("purchaseNFTs", (accounts) => {
     });
     
 })
+
+// minimum to get a myst token = 10000000000000000
+// min myst token made = 1000000000000
+// for insufficient funds, min price of NFT must be 1000000000001 

@@ -61,7 +61,7 @@ contract PurchaseNFT {
 
     function listNFT(address token, uint tokenId, uint price) external {
 		//transferring the nft from the seller to the contract
-        // IERC721(token).transferFrom(IERC721(token).ownerOf(tokenId), address(this), tokenId);
+        IERC721(token).transferFrom(IERC721(token).ownerOf(tokenId), address(this), tokenId);
         
         // create a new listing
 		Listing memory listing = Listing(

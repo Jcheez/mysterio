@@ -28,7 +28,7 @@ contract("purchaseNFTs", (accounts) => {
                   purchaseInstance.listNFT(
                   testInstance.address,
                   new BN(0),
-                  new BN(1900000000000)
+                  "19000000000000000",
                 ), 'ERC721: transfer caller is not owner nor approved');
               });
         
@@ -37,13 +37,13 @@ contract("purchaseNFTs", (accounts) => {
             await testInstance.mint(accounts[0], {from: accounts[0]});
             await testInstance.approve(purchaseInstance.address, new BN(0), {from: accounts[0]})
 
-            const l1 = await purchaseInstance.listNFT(testInstance.address, new BN(0), new BN(1900000000000), {from: accounts[0]});
+            const l1 = await purchaseInstance.listNFT(testInstance.address, new BN(0), "19000000000000000", {from: accounts[0]});
             expectEvent(l1, 'Listed', {
                 listingId: new BN(1), 
                 seller: accounts[0],
                 token: testInstance.address, 
                 tokenId: new BN(0), 
-                price: new BN(1900000000000)
+                price: "19000000000000000"
             });
 
             return testInstance.ownerOf(new BN(0)).then(owner => {
@@ -69,7 +69,7 @@ contract("purchaseNFTs", (accounts) => {
                 buyer: accounts[3],
                 token: testInstance.address,
                 tokenId: new BN(0),
-                price: new BN(1900000000000)
+                price: "19000000000000000"
             });
 
             return testInstance.ownerOf(new BN(0)).then(owner => {

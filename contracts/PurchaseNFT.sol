@@ -96,7 +96,7 @@ contract PurchaseNFT {
 
 		//check if enough money 
 		// mysterystakingInstance.getMYST(msg.sender, msg.value);
-		require(mysterystakingInstance.getERCInstance().balanceOf(msg.sender) >= listing.price, 'Not enough money');
+		require(mysterystakingInstance.getERCInstance().balanceOf(msg.sender) >= (listing.price / 1E4), 'Not enough money');
 	
 
         // set to sold 
@@ -106,8 +106,9 @@ contract PurchaseNFT {
 		IERC721(listing.token).transferFrom(address(this), msg.sender, listing.tokenId);
 		
         // require(msg.value >= listing.price, "Insufficient payment");
-		
-        mysterystakingInstance.getERCInstance().transferFrom(msg.sender, listing.seller, listing.price);
+		// payment transferred is listing.price/ 1E4 as the conversion of ether to myst is / 1E4
+		// listing price is in ether
+        mysterystakingInstance.getERCInstance().transferFrom(msg.sender, listing.seller, (listing.price / 1E4 ) );
    
 
 		emit Bought(

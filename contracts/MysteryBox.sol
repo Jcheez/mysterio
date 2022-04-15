@@ -190,8 +190,8 @@ contract MysteryBox {
         if (tier == 0) {
             require(
                 mysterystakingInstance.getERCInstance().balanceOf(msg.sender) >=
-                    5,
-                "5 MYST is needed to make the basic box"
+                    (0.05 ether / 1E4),
+                "5000000000000 MYST is needed to make the basic box"
             );
             mysterystakingInstance.getERCInstance().deduct(msg.sender, 5);
             uint256 newBoxId = makeBox(tier, purchaser);
@@ -202,8 +202,8 @@ contract MysteryBox {
         } else if (tier == 1) {
             require(
                 mysterystakingInstance.getERCInstance().balanceOf(msg.sender) >=
-                    10,
-                "10 MYST is needed to make the premium box"
+                    (0.10 ether / 1E4),
+                "10000000000000 MYST is needed to make the premium box"
             );
             mysterystakingInstance.getERCInstance().deduct(msg.sender, 10);
             uint256 newBoxId = makeBox(tier, purchaser);
@@ -214,8 +214,8 @@ contract MysteryBox {
         } else {
             require(
                 mysterystakingInstance.getERCInstance().balanceOf(msg.sender) >=
-                    15,
-                "15 MYST is needed to make the mysterious box"
+                    (0.15 ether / 1E4),
+                "15000000000000 MYST is needed to make the mysterious box"
             );
             mysterystakingInstance.getERCInstance().deduct(msg.sender, 15);
             uint256 newBoxId = makeBox(tier, purchaser);

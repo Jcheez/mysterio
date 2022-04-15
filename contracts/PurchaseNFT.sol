@@ -15,48 +15,28 @@ contract PurchaseNFT {
     
     uint private _listingId = 0;
 	mapping(uint => Listing) private _listings; // get the listing from listing id
-    // MysteryToken mysteryTokenContract;
-    // ERC20 mysteryToken; 
-    OwnedNFTs ownedNFTContract; 
+  	OwnedNFTs ownedNFTContract; 
 	MysteryStaking mysterystakingInstance;
 
 
-    constructor(
-		OwnedNFTs ownedNFTsAddress,
-		MysteryStaking mysterystaking
-) {
+    constructor(OwnedNFTs ownedNFTsAddress,MysteryStaking mysterystaking) {
         mysterystakingInstance = mysterystaking;
         ownedNFTContract = ownedNFTsAddress;
     }
 
-    enum ListingStatus {
-		Active,
-		Sold
-	}
+    enum ListingStatus {Active,Sold}
 
 	struct Listing {
 		ListingStatus status;
 		address seller;
-        address token;
+        	address token;
 		uint tokenId;
 		uint price;
 	}
 
-    event Listed(
-		uint listingId,
-		address seller,
-		address token,
-		uint tokenId,
-		uint price
-	);
+    event Listed(uint listingId, address seller, address token, uint tokenId, uint price);
 
-	event Bought(
-		uint listingId,
-		address buyer,
-		address token,
-		uint tokenId,
-		uint price
-	);
+    event Bought(uint listingId, address buyer, address token, uint tokenId, uint price);
 
 
     function listNFT(address token, uint tokenId, uint price) external {
